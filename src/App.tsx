@@ -10,7 +10,7 @@ import { BatchActions } from './components/Issues/BatchActions';
 import { ProfileView } from './components/Profile/ProfileView';
 import { AIAnalysisView } from './components/AIAnalysis/AIAnalysisView';
 import { CodeReviewView } from './components/CodeReview/CodeReviewView';
-import { mockIssues, mockUser } from './data/mockData';
+import { mockIssues, mockUserProfile } from './data/mockData';
 import { Issue, FilterOptions, UserProfile } from './types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Search } from 'lucide-react';
@@ -20,7 +20,7 @@ function App() {
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [selectedIssueIds, setSelectedIssueIds] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile>(mockUser);
+  const [userProfile, setUserProfile] = useState<UserProfile>(mockUserProfile);
   const location = useLocation();
 
   const [filters, setFilters] = useState<FilterOptions>({

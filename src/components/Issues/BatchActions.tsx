@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { cn } from '../../utils/cn';
 import { 
   Tag as TagIcon, 
   Users, 
@@ -185,8 +186,4 @@ function Dropdown({ items, onSelect, onClose, prefix = "" }: { items: string[], 
       </div>
     </motion.div>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }

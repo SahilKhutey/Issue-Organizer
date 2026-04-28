@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { cn } from '../../utils/cn';
 import { 
   User, 
   Mail, 
@@ -229,8 +230,4 @@ export function ProfileView({ profile, onProfileUpdate }: ProfileViewProps) {
       </AnimatePresence>
     </div>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }

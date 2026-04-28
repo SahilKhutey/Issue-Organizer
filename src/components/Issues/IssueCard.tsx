@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../../utils/cn';
 import { 
   Calendar, 
   MessageCircle, 
@@ -144,8 +145,4 @@ export function IssueCard({ issue, isSelected, onSelect, onClick }: IssueCardPro
       </div>
     </motion.div>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }

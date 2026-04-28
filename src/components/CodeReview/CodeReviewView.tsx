@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../../utils/cn';
 import { 
   Code, 
   Search, 
@@ -152,8 +153,4 @@ export function CodeReviewView() {
       </motion.div>
     </motion.div>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }

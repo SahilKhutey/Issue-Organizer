@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { cn } from '../../utils/cn';
 import { 
   Calendar, 
   MessageCircle, 
@@ -253,8 +254,4 @@ export function IssueDetail({ issue, onClose }: IssueDetailProps) {
       </div>
     </AnimatePresence>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }

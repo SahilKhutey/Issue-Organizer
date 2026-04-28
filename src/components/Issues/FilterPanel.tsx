@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../../utils/cn';
 import { X, Filter, RotateCcw, Check } from 'lucide-react';
 import { FilterOptions } from '../../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -227,8 +228,4 @@ function FilterCheckbox({ label, checked, onChange }: { label: string, checked: 
       </span>
     </label>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }

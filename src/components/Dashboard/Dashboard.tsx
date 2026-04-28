@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../../utils/cn';
 import { 
   AlertCircle, 
   CheckCircle, 
@@ -240,8 +241,4 @@ export function Dashboard({ onIssueClick }: DashboardProps) {
       </motion.div>
     </motion.div>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }
