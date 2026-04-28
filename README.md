@@ -47,6 +47,11 @@ Issue Organizer is a professional-grade, high-velocity dashboard designed for el
    npm run dev
    ```
 
+## 🚀 One-Click Launch
+For your convenience, a **launch icon** has been created:
+- **Desktop Shortcut**: Double-click the "Issue Organizer" icon on your desktop.
+- **Batch File**: Run `launch.bat` directly from the root directory.
+
 ## 📱 Cross-Platform Support
 - **Mobile Optimized**: Fully responsive layouts with adaptive navigation.
 - **PWA Ready**: Installable on mobile and desktop for native-like performance.
