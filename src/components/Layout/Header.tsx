@@ -1,6 +1,7 @@
 import React from 'react';
-import { Search, Bell, Sun, Moon, Monitor } from 'lucide-react';
+import { Search, Bell, Sun, Moon, Monitor, Command } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
+import { motion } from 'framer-motion';
 
 interface HeaderProps {
   searchQuery: string;
@@ -17,53 +18,70 @@ export function Header({ searchQuery, onSearchChange }: HeaderProps) {
   ];
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-      <div className="flex items-center justify-between">
+    <header className="glass-morphism border-b px-8 py-4 z-30 sticky top-0">
+      <div className="flex items-center justify-between gap-8">
         {/* Search */}
-        <div className="flex-1 max-w-2xl">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+        <div className="flex-1 max-w-3xl">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            </div>
             <input
               type="text"
-              placeholder="Search issues by title, tags, assignee..."
+              placeholder="Search anything... (Ctrl + K)"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="block w-full pl-12 pr-16 py-2.5 bg-muted/50 border-none rounded-2xl text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all"
             />
+            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded border bg-background text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                <Command className="h-3 w-3" />
+                <span>K</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           {/* Theme Toggle */}
-          <div className="relative">
-            <select
-              value={theme}
-              onChange={(e) => setTheme(e.target.value as any)}
-              className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-            >
-              {themeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+          <div className="flex items-center bg-muted/50 rounded-2xl p-1">
+            {themeOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setTheme(option.value as any)}
+                className={`p-2 rounded-xl transition-all ${
+                  theme === option.value
+                    ? 'bg-background shadow-sm text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title={option.label}
+              >
+                <option.icon className="h-4 w-4" />
+              </button>
+            ))}
           </div>
+
+          <div className="w-px h-6 bg-border mx-2" />
 
           {/* Notifications */}
-          <button className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-2xl transition-all"
+          >
             <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+            <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-background animate-pulse"></span>
+          </motion.button>
 
-          {/* Profile */}
-          <div className="flex items-center space-x-3">
-            <img
-              src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&dpr=2"
-              alt="Profile"
-              className="w-8 h-8 rounded-full ring-2 ring-gray-200 dark:ring-gray-700"
-            />
-          </div>
+          {/* Quick Action Button */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="ml-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all text-sm"
+          >
+            New Issue
+          </motion.button>
         </div>
       </div>
     </header>

@@ -12,9 +12,12 @@ import {
   Edit,
   Send,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Github,
+  Globe
 } from 'lucide-react';
 import { Issue } from '../../types';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface IssueDetailProps {
   issue: Issue;
@@ -27,10 +30,10 @@ export function IssueDetail({ issue, onClose }: IssueDetailProps) {
   const [aiComment, setAiComment] = useState(issue.aiDraftComment || '');
 
   const priorityConfig = {
-    urgent: { color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200', icon: AlertCircle },
-    high: { color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200', icon: AlertCircle },
-    medium: { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', icon: Clock },
-    low: { color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', icon: CheckCircle }
+    urgent: { color: 'bg-destructive/10 text-destructive', icon: AlertCircle },
+    high: { color: 'bg-orange-500/10 text-orange-500', icon: AlertCircle },
+    medium: { color: 'bg-yellow-500/10 text-yellow-500', icon: Clock },
+    low: { color: 'bg-green-500/10 text-green-500', icon: CheckCircle }
   };
 
   const PriorityIcon = priorityConfig[issue.priority].icon;
@@ -39,11 +42,9 @@ export function IssueDetail({ issue, onClose }: IssueDetailProps) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       weekday: 'long',
-      year: 'numeric',
       month: 'long',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric'
     });
   };
 
@@ -52,219 +53,208 @@ export function IssueDetail({ issue, onClose }: IssueDetailProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-lg font-semibold text-gray-500 dark:text-gray-400">
-                #{issue.number}
-              </span>
-              <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${priorityConfig[issue.priority].color}`}>
-                <PriorityIcon className="w-4 h-4 mr-1" />
-                {issue.priority}
-              </span>
-              {issue.state === 'closed' && (
-                <span className="inline-flex items-center px-3 py-1 text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full">
-                  <CheckCircle className="w-4 h-4 mr-1" />
-                  Closed
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute inset-0 bg-black/60 backdrop-blur-md"
+        />
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          className="relative bg-background border rounded-[2.5rem] shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-8 border-b glass-morphism-heavy z-10">
+            <div className="flex items-center gap-4">
+              <span className="text-2xl font-black text-muted-foreground/30">#{issue.number}</span>
+              <div className="flex items-center gap-2">
+                <span className={cn("px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2", priorityConfig[issue.priority].color)}>
+                  <PriorityIcon className="w-4 h-4" />
+                  {issue.priority}
                 </span>
-              )}
+                {issue.state === 'closed' && (
+                  <span className="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2 bg-green-500/10 text-green-500">
+                    <CheckCircle className="w-4 h-4" />
+                    Closed
+                  </span>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => copyToClipboard(window.location.href)}
+                className="p-3 text-muted-foreground hover:text-foreground bg-muted/50 rounded-2xl transition-all"
+              >
+                <Copy className="w-5 h-5" />
+              </button>
+              <button className="p-3 text-muted-foreground hover:text-foreground bg-muted/50 rounded-2xl transition-all">
+                <ExternalLink className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={onClose}
+                className="p-3 text-muted-foreground hover:text-foreground bg-destructive/10 text-destructive rounded-2xl transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <button 
-              onClick={() => copyToClipboard(window.location.href)}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              <Copy className="w-5 h-5" />
-            </button>
-            <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              <ExternalLink className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={onClose}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
 
-        {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
-          <div className="p-6">
-            {/* Title */}
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              {issue.title}
-            </h1>
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-10 space-y-10 scrollbar-thin scrollbar-thumb-muted">
+            <section className="space-y-6">
+              <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">
+                {issue.title}
+              </h1>
 
-            {/* AI Analysis */}
-            {issue.aiSummary && (
-              <div className="mb-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                <div className="flex items-center space-x-2 mb-3">
-                  <Zap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300">AI Analysis</h3>
-                </div>
-                <p className="text-purple-600 dark:text-purple-300 font-medium mb-3">{issue.aiSummary}</p>
-                
-                {issue.aiTags && issue.aiTags.length > 0 && (
-                  <div className="mb-3">
-                    <h4 className="text-sm font-medium text-purple-700 dark:text-purple-300 mb-2">Suggested Tags:</h4>
+              {/* AI Insight Section */}
+              {issue.aiSummary && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="p-8 bg-primary/5 rounded-[2rem] border border-primary/10 relative overflow-hidden"
+                >
+                  <div className="absolute top-0 right-0 p-8 opacity-5">
+                    <Zap className="w-32 h-32 text-primary" />
+                  </div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-primary text-primary-foreground rounded-xl">
+                      <Zap className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-xl font-bold tracking-tight">AI Strategic Summary</h3>
+                  </div>
+                  <p className="text-lg text-primary/80 leading-relaxed font-medium mb-6">
+                    "{issue.aiSummary}"
+                  </p>
+                  
+                  {issue.aiTags && (
                     <div className="flex flex-wrap gap-2">
                       {issue.aiTags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center px-2 py-1 text-xs font-medium bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-200 rounded-full"
-                        >
-                          <TagIcon className="w-3 h-3 mr-1" />
+                        <span key={tag} className="px-4 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase tracking-wider">
                           {tag}
                         </span>
                       ))}
                     </div>
-                  </div>
-                )}
+                  )}
+                </motion.div>
+              )}
+            </section>
 
-                {issue.aiPriority && issue.aiPriority !== issue.priority && (
-                  <div className="text-sm text-purple-600 dark:text-purple-400">
-                    <strong>AI Suggested Priority:</strong> {issue.aiPriority}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+              {/* Main Content */}
+              <div className="lg:col-span-2 space-y-8">
+                <section>
+                  <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground mb-4">Detailed Description</h3>
+                  <div className="p-8 bg-muted/30 rounded-[2rem] border border-border/50">
+                    <p className="text-lg leading-relaxed whitespace-pre-wrap">{issue.body}</p>
                   </div>
-                )}
-              </div>
-            )}
+                </section>
 
-            {/* Metadata */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <User className="w-5 h-5 text-gray-400" />
-                  <div className="flex items-center space-x-2">
-                    <img
-                      src={issue.author.avatar_url}
-                      alt={issue.author.login}
-                      className="w-6 h-6 rounded-full"
-                    />
-                    <span className="text-gray-900 dark:text-white font-medium">{issue.author.name || issue.author.login}</span>
-                    <span className="text-gray-500 dark:text-gray-400">opened this issue</span>
-                  </div>
-                </div>
-                
-                {issue.assignee && (
-                  <div className="flex items-center space-x-3">
-                    <User className="w-5 h-5 text-gray-400" />
-                    <div className="flex items-center space-x-2">
-                      <img
-                        src={issue.assignee.avatar_url}
-                        alt={issue.assignee.login}
-                        className="w-6 h-6 rounded-full"
-                      />
-                      <span className="text-gray-900 dark:text-white font-medium">{issue.assignee.name || issue.assignee.login}</span>
-                      <span className="text-gray-500 dark:text-gray-400">assigned</span>
+                {/* AI Draft Response */}
+                {issue.aiDraftComment && (
+                  <section className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground">AI Response Draft</h3>
+                      <button
+                        onClick={() => setShowAiComment(!showAiComment)}
+                        className="text-xs font-bold text-primary hover:underline"
+                      >
+                        {showAiComment ? 'Discard Draft' : 'Refine Response'}
+                      </button>
                     </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <Calendar className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <span className="text-gray-500 dark:text-gray-400">Created: </span>
-                    <span className="text-gray-900 dark:text-white">{formatDate(issue.createdAt)}</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <MessageCircle className="w-5 h-5 text-gray-400" />
-                  <span className="text-gray-900 dark:text-white">{issue.comments} comments</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Tags */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {issue.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center px-3 py-1 text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full"
-                  >
-                    <TagIcon className="w-4 h-4 mr-1" />
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Description</h3>
-              <div className="prose prose-gray dark:prose-invert max-w-none bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <p className="whitespace-pre-wrap">{issue.body}</p>
-              </div>
-            </div>
-
-            {/* AI Draft Comment */}
-            {issue.aiDraftComment && (
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">AI Draft Response</h3>
-                  <button
-                    onClick={() => setShowAiComment(!showAiComment)}
-                    className="px-4 py-2 text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
-                  >
-                    {showAiComment ? 'Hide' : 'Show'} AI Response
-                  </button>
-                </div>
-                
-                {showAiComment && (
-                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800 p-4">
-                    {editingComment ? (
-                      <div>
+                    
+                    {showAiComment && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-8 glass-morphism rounded-[2rem] border border-primary/20 space-y-4"
+                      >
                         <textarea
                           value={aiComment}
                           onChange={(e) => setAiComment(e.target.value)}
-                          className="w-full h-32 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          placeholder="Edit AI-generated response..."
+                          className="w-full h-40 bg-transparent border-none focus:ring-0 text-lg leading-relaxed resize-none p-0"
+                          placeholder="Refine the AI's response..."
                         />
-                        <div className="flex items-center space-x-2 mt-3">
-                          <button
-                            onClick={() => setEditingComment(false)}
-                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
-                          >
-                            <Send className="w-4 h-4" />
-                            <span>Post Comment</span>
+                        <div className="flex justify-end gap-3">
+                          <button className="px-6 py-3 bg-muted font-bold rounded-xl hover:bg-muted/80 transition-all">
+                            Save as Draft
                           </button>
-                          <button
-                            onClick={() => setEditingComment(false)}
-                            className="px-4 py-2 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                          >
-                            Cancel
+                          <button className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all flex items-center gap-2">
+                            <Send className="w-4 h-4" />
+                            Post Final Response
                           </button>
                         </div>
-                      </div>
-                    ) : (
+                      </motion.div>
+                    )}
+                  </section>
+                )}
+              </div>
+
+              {/* Sidebar Info */}
+              <div className="space-y-8">
+                <section className="space-y-6">
+                  <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground">Collaboration</h3>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/20">
+                      <img src={issue.author.avatar_url} className="w-12 h-12 rounded-full ring-2 ring-primary/20" alt="author" />
                       <div>
-                        <p className="text-purple-700 dark:text-purple-300 mb-3">{aiComment}</p>
-                        <button
-                          onClick={() => setEditingComment(true)}
-                          className="px-4 py-2 text-sm font-medium text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-600 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors flex items-center space-x-2"
-                        >
-                          <Edit className="w-4 h-4" />
-                          <span>Edit & Post</span>
-                        </button>
+                        <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Reporter</p>
+                        <p className="font-bold">{issue.author.name || issue.author.login}</p>
+                      </div>
+                    </div>
+
+                    {issue.assignee && (
+                      <div className="flex items-center gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/10">
+                        <img src={issue.assignee.avatar_url} className="w-12 h-12 rounded-full ring-2 ring-primary/50" alt="assignee" />
+                        <div>
+                          <p className="text-xs font-black text-primary uppercase tracking-widest">Assignee</p>
+                          <p className="font-bold">{issue.assignee.name || issue.assignee.login}</p>
+                        </div>
                       </div>
                     )}
                   </div>
-                )}
+                </section>
+
+                <section className="space-y-4">
+                  <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground">Timeline</h3>
+                  <div className="space-y-4 text-sm font-medium">
+                    <div className="flex items-center gap-3 text-muted-foreground">
+                      <Calendar className="w-5 h-5" />
+                      <span>Created {formatDate(issue.createdAt)}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-muted-foreground">
+                      <MessageCircle className="w-5 h-5" />
+                      <span>{issue.comments} active discussion threads</span>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="space-y-4">
+                  <h3 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground">Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {issue.tags.map((tag) => (
+                      <span key={tag} className="px-4 py-2 bg-muted text-xs font-bold rounded-2xl border border-transparent hover:border-primary transition-all">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </section>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
+}
+
+function cn(...inputs: any[]) {
+  return inputs.filter(Boolean).join(' ');
 }

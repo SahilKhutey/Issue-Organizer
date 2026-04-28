@@ -7,18 +7,22 @@ import {
   TrendingUp,
   Github,
   Tag,
-  Users
+  Users,
+  ArrowRight
 } from 'lucide-react';
 import { StatsCard } from './StatsCard';
 import { IssueCard } from '../Issues/IssueCard';
 import { mockIssues } from '../../data/mockData';
 import { Issue } from '../../types';
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardProps {
   onIssueClick: (issue: Issue) => void;
 }
 
 export function Dashboard({ onIssueClick }: DashboardProps) {
+  const navigate = useNavigate();
   const openIssues = mockIssues.filter(issue => issue.state === 'open');
   const closedIssues = mockIssues.filter(issue => issue.state === 'closed');
   const highPriorityIssues = openIssues.filter(issue => issue.priority === 'high' || issue.priority === 'urgent');
@@ -28,18 +32,56 @@ export function Dashboard({ onIssueClick }: DashboardProps) {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 3);
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="space-y-8">
+    <motion.div 
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="space-y-10 pb-10"
+    >
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Overview of your issue management and AI analysis
-        </p>
-      </div>
+      <motion.div variants={item} className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-black tracking-tight text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground mt-2 text-lg">
+            Welcome back! Here's what's happening with your projects.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex -space-x-3">
+            {[1, 2, 3, 4].map((i) => (
+              <img
+                key={i}
+                src={`https://i.pravatar.cc/150?u=${i}`}
+                className="w-10 h-10 rounded-full border-4 border-background"
+                alt="team"
+              />
+            ))}
+            <div className="w-10 h-10 rounded-full border-4 border-background bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
+              +5
+            </div>
+          </div>
+          <span className="text-sm font-medium text-muted-foreground ml-2">Team is active</span>
+        </div>
+      </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard
           title="Open Issues"
           value={openIssues.length}
@@ -68,117 +110,138 @@ export function Dashboard({ onIssueClick }: DashboardProps) {
           color="purple"
           trend={{ value: 15, isPositive: true }}
         />
-      </div>
+      </motion.div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Priority Distribution */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Priority Distribution</h3>
-          <div className="space-y-4">
+        <motion.div variants={item} className="lg:col-span-1 glass-morphism rounded-3xl p-8 shadow-xl">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Priority Load
+          </h3>
+          <div className="space-y-6">
             {['urgent', 'high', 'medium', 'low'].map((priority) => {
               const count = openIssues.filter(issue => issue.priority === priority).length;
               const percentage = openIssues.length > 0 ? (count / openIssues.length) * 100 : 0;
               
               const colors = {
-                urgent: 'bg-red-500',
-                high: 'bg-orange-500',
-                medium: 'bg-yellow-500',
-                low: 'bg-green-500'
+                urgent: 'bg-destructive shadow-destructive/20',
+                high: 'bg-orange-500 shadow-orange-500/20',
+                medium: 'bg-yellow-500 shadow-yellow-500/20',
+                low: 'bg-green-500 shadow-green-500/20'
               };
 
               return (
-                <div key={priority} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${colors[priority as keyof typeof colors]}`} />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
-                      {priority}
-                    </span>
+                <div key={priority} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-bold capitalize">{priority}</span>
+                    <span className="text-muted-foreground font-medium">{count} issues</span>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full ${colors[priority as keyof typeof colors]}`}
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400 w-8 text-right">
-                      {count}
-                    </span>
+                  <div className="h-3 bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${percentage}%` }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className={`h-full rounded-full ${colors[priority as keyof typeof colors]} shadow-lg`}
+                    />
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* AI Analysis Stats */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">AI Analysis Overview</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Zap className="w-5 h-5 text-purple-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Issues Analyzed
-                </span>
-              </div>
-              <span className="text-sm font-bold text-gray-900 dark:text-white">
-                {aiAnalyzedIssues.length}/{mockIssues.length}
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Tag className="w-5 h-5 text-blue-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  AI Tags Generated
-                </span>
-              </div>
-              <span className="text-sm font-bold text-gray-900 dark:text-white">
-                {mockIssues.reduce((sum, issue) => sum + (issue.aiTags?.length || 0), 0)}
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <TrendingUp className="w-5 h-5 text-green-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Accuracy Rate
-                </span>
-              </div>
-              <span className="text-sm font-bold text-gray-900 dark:text-white">94%</span>
-            </div>
+        <motion.div variants={item} className="lg:col-span-2 glass-morphism rounded-3xl p-8 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-10">
+            <Zap className="w-40 h-40 text-primary" />
           </div>
           
-          <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <p className="text-sm text-purple-700 dark:text-purple-300">
-              AI has processed {aiAnalyzedIssues.length} issues this week, saving an estimated 
-              <span className="font-semibold"> 3.2 hours</span> of manual review time.
-            </p>
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-purple-500" />
+            AI Intelligence Insights
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div className="p-4 bg-background/50 rounded-2xl border border-border/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-muted-foreground">Scan Completion</span>
+                  <span className="text-sm font-bold text-primary">84%</span>
+                </div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full w-[84%] bg-primary rounded-full" />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { label: 'Auto-categorization', value: 'Enabled', icon: Tag, color: 'text-blue-500' },
+                  { label: 'Duplicate Detection', value: 'Active', icon: Github, color: 'text-green-500' },
+                  { label: 'Priority Prediction', value: 'High Accuracy', icon: TrendingUp, color: 'text-orange-500' }
+                ].map((stat, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={cn("p-2 rounded-lg bg-muted", stat.color)}>
+                        <stat.icon className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-medium">{stat.label}</span>
+                    </div>
+                    <span className="text-xs font-bold px-2 py-1 bg-muted rounded-md">{stat.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-primary/5 rounded-3xl p-6 flex flex-col justify-between">
+              <div>
+                <p className="text-sm font-medium text-primary mb-2 italic">Pro Tip</p>
+                <p className="text-lg font-bold leading-tight">
+                  AI has saved you <span className="text-primary text-2xl">3.2h</span> of manual triage this week.
+                </p>
+              </div>
+              <button className="mt-6 w-full py-3 bg-primary text-primary-foreground font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">
+                View AI Report
+              </button>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Recent Issues */}
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Issues</h3>
-          <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors">
-            View all →
+      <motion.div variants={item}>
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="text-2xl font-black tracking-tight">Recent Activity</h3>
+          <button 
+            onClick={() => navigate('/issues')}
+            className="group flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all"
+          >
+            Explore all issues
+            <ArrowRight className="w-5 h-5" />
           </button>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {recentIssues.map((issue) => (
-            <IssueCard
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {recentIssues.map((issue, idx) => (
+            <motion.div
               key={issue.id}
-              issue={issue}
-              onClick={onIssueClick}
-            />
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.1 + 0.5 }}
+            >
+              <IssueCard
+                issue={issue}
+                onClick={onIssueClick}
+              />
+            </motion.div>
           ))}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
+}
+
+function cn(...inputs: any[]) {
+  return inputs.filter(Boolean).join(' ');
 }

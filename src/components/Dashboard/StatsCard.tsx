@@ -1,5 +1,6 @@
 import React from 'react';
-import { DivideIcon as LucideIcon } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface StatsCardProps {
   title: string;
@@ -14,31 +15,38 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, icon: Icon, color, trend }: StatsCardProps) {
   const colorClasses = {
-    blue: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400',
-    green: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
-    yellow: 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400',
-    red: 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400',
-    purple: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
+    blue: 'bg-blue-500/10 text-blue-500',
+    green: 'bg-green-500/10 text-green-500',
+    yellow: 'bg-yellow-500/10 text-yellow-500',
+    red: 'bg-red-500/10 text-red-500',
+    purple: 'bg-purple-500/10 text-purple-500'
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
-          {trend && (
-            <p className={`text-sm mt-1 ${
-              trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-            }`}>
-              {trend.isPositive ? '↗' : '↘'} {Math.abs(trend.value)}%
-            </p>
-          )}
-        </div>
-        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
-          <Icon className="w-6 h-6" />
+    <motion.div
+      whileHover={{ y: -5, scale: 1.02 }}
+      className="glass-morphism rounded-3xl p-6 transition-all shadow-lg hover:shadow-primary/5"
+    >
+      <div className="flex items-start justify-between">
+        <div className="space-y-4">
+          <div className={`p-3 rounded-2xl inline-block ${colorClasses[color]}`}>
+            <Icon className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{title}</p>
+            <div className="flex items-baseline space-x-2">
+              <p className="text-3xl font-black tracking-tight">{value}</p>
+              {trend && (
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  trend.isPositive ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+                }`}>
+                  {trend.isPositive ? '+' : '-'}{Math.abs(trend.value)}%
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

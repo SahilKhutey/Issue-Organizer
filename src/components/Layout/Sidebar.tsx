@@ -1,32 +1,34 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Home, 
-  Filter, 
-  BarChart3, 
-  Settings, 
-  Github, 
-  Menu,
-  X,
-  ChevronDown,
-  ChevronRight,
-  Zap,
-  Tag,
-  Users,
-  Code
+   Home, 
+   Filter, 
+   BarChart3, 
+   Settings, 
+   Github, 
+   Menu,
+   X,
+   ChevronDown,
+   ChevronRight,
+   Zap,
+   Tag,
+   Users,
+   Code,
+   LayoutDashboard,
+   Boxes,
+   Activity
 } from 'lucide-react';
-import { User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface SidebarProps {
-  activeView: string;
-  onViewChange: (view: string) => void;
-}
-
-export function Sidebar({ activeView, onViewChange }: SidebarProps) {
+export function Sidebar() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     main: true,
     organization: true,
-    settings: true
+    insights: true
   });
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -38,113 +40,190 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
 
   const menuItems = {
     main: [
-      { id: 'dashboard', icon: Home, label: 'Dashboard', count: null },
-      { id: 'issues', icon: Github, label: 'All Issues', count: 42 },
-      { id: 'ai-analysis', icon: Zap, label: 'AI Analysis', count: null },
-      { id: 'code-review', icon: Code, label: 'Code Review', count: null }
+      { id: 'dashboard', icon: LayoutDashboard, label: 'Control Center', path: '/dashboard', count: null },
+      { id: 'issues', icon: Boxes, label: 'Issue Inventory', path: '/issues', count: 42 },
     ],
-    organization: [
-      { id: 'filters', icon: Filter, label: 'Filters', count: null },
-      { id: 'tags', icon: Tag, label: 'Tags', count: 18 },
-      { id: 'assignees', icon: Users, label: 'Assignees', count: 5 }
+    intelligence: [
+      { id: 'ai-analysis', icon: Zap, label: 'Neural Insights', path: '/ai-analysis', count: 'AI' },
+      { id: 'code-review', icon: Code, label: 'Quality Audit', path: '/code-review', count: null },
     ],
-    settings: [
-      { id: 'analytics', icon: BarChart3, label: 'Analytics', count: null },
-      { id: 'settings', icon: Settings, label: 'Settings', count: null }
+    ecosystem: [
+      { id: 'analytics', icon: Activity, label: 'Performance', path: '/analytics', count: null },
+      { id: 'settings', icon: Settings, label: 'System Config', path: '/settings', count: null }
     ]
   };
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
-    <div className={`flex flex-col h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${
-      isCollapsed ? 'w-16' : 'w-64'
-    }`}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        {!isCollapsed && (
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <Github className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-semibold text-gray-900 dark:text-white">Issue Organizer</span>
-          </div>
+    <>
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-background/80 backdrop-blur-md z-40 lg:hidden"
+          />
         )}
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        >
-          {isCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
-        </button>
-      </div>
+      </AnimatePresence>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4 space-y-6">
-        {Object.entries(menuItems).map(([sectionKey, items]) => (
-          <div key={sectionKey}>
+      <motion.aside
+        initial={false}
+        animate={{ 
+          width: isCollapsed ? 100 : 320,
+          x: isMobileMenuOpen ? 0 : (window.innerWidth < 1024 ? -320 : 0)
+        }}
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 lg:relative flex flex-col h-full glass-morphism-heavy border-r border-border/50 transition-all duration-500 ease-in-out",
+          isCollapsed ? "items-center" : ""
+        )}
+      >
+        {/* Brand */}
+        <div className="p-8 w-full">
+          <div className="flex items-center justify-between">
             {!isCollapsed && (
-              <button
-                onClick={() => toggleSection(sectionKey as keyof typeof expandedSections)}
-                className="flex items-center justify-between w-full text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center gap-4"
               >
-                <span>{sectionKey.replace(/([A-Z])/g, ' $1').trim()}</span>
-                {expandedSections[sectionKey as keyof typeof expandedSections] ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-              </button>
+                <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/40 group cursor-pointer">
+                  <Github className="w-6 h-6 text-primary-foreground group-hover:rotate-12 transition-transform" />
+                </div>
+                <div>
+                  <h2 className="font-black text-xl tracking-tighter leading-none">ISSUE</h2>
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Organizer</p>
+                </div>
+              </motion.div>
             )}
-            
-            {(isCollapsed || expandedSections[sectionKey as keyof typeof expandedSections]) && (
-              <div className="space-y-1">
-                {items.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => onViewChange(item.id)}
-                    className={`flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                      activeView === item.id
-                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 shadow-sm'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <item.icon className={`w-5 h-5 ${isCollapsed ? 'mx-auto' : 'mr-3'}`} />
-                    {!isCollapsed && (
-                      <>
-                        <span className="flex-1 text-left">{item.label}</span>
-                        {item.count !== null && (
-                          <span className="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
-                            {item.count}
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </nav>
-
-      {/* Footer */}
-      {!isCollapsed && (
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3">
-            <img
-              src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=32&h=32&dpr=2"
-              alt="User"
-              className="w-8 h-8 rounded-full"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                John Doe
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                @johndoe
-              </p>
-            </div>
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-3 rounded-2xl hover:bg-muted transition-all text-muted-foreground hover:text-foreground"
+            >
+              {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <X className="w-5 h-5 lg:hidden" /> || <ChevronLeft className="w-5 h-5 hidden lg:block" />}
+            </button>
           </div>
         </div>
-      )}
-    </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-6 space-y-10 overflow-y-auto scrollbar-none pb-10">
+          {Object.entries(menuItems).map(([sectionKey, items]) => (
+            <div key={sectionKey} className="space-y-4">
+              {!isCollapsed && (
+                <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30">
+                  {sectionKey}
+                </h3>
+              )}
+              <div className="space-y-2">
+                {items.map((item) => {
+                  const active = isActive(item.path);
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        navigate(item.path);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center w-full group relative transition-all duration-300",
+                        isCollapsed ? "justify-center p-4" : "px-4 py-3.5 rounded-[1.25rem]",
+                        active 
+                          ? "bg-primary text-primary-foreground shadow-xl shadow-primary/20" 
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <item.icon className={cn(
+                        "w-5 h-5 transition-all duration-300",
+                        !isCollapsed && "mr-4",
+                        active ? "scale-110" : "group-hover:scale-110"
+                      )} />
+                      {!isCollapsed && (
+                        <>
+                          <span className="flex-1 text-left font-bold text-sm tracking-tight">{item.label}</span>
+                          {item.count && (
+                            <span className={cn(
+                              "px-2 py-0.5 text-[9px] font-black rounded-lg uppercase tracking-widest",
+                              active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-primary/10 text-primary"
+                            )}>
+                              {item.count}
+                            </span>
+                          )}
+                        </>
+                      )}
+                      {active && !isCollapsed && (
+                        <motion.div 
+                          layoutId="active-indicator"
+                          className="absolute -left-2 w-1.5 h-6 bg-primary rounded-full shadow-[0_0_15px_rgba(var(--primary),0.5)]"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* User Node */}
+        <div className="p-6 mt-auto">
+          <button
+            onClick={() => navigate('/profile')}
+            className={cn(
+              "flex items-center w-full p-3 rounded-[1.5rem] bg-muted/30 border border-transparent hover:border-primary/20 transition-all group",
+              isCollapsed ? "justify-center" : "gap-4"
+            )}
+          >
+            <div className="relative">
+              <img
+                src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=64&h=64&dpr=2"
+                alt="User"
+                className="w-12 h-12 rounded-2xl object-cover grayscale group-hover:grayscale-0 transition-all shadow-lg"
+              />
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary border-2 border-background rounded-full animate-pulse" />
+            </div>
+            {!isCollapsed && (
+              <div className="text-left">
+                <p className="text-sm font-black tracking-tight">Sahil Khutey</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Lead Systems Eng</p>
+              </div>
+            )}
+          </button>
+        </div>
+      </motion.aside>
+    </>
+  );
+}
+
+function ChevronLeft(props: any) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+
+function cn(...inputs: any[]) {
+  return inputs.filter(Boolean).join(' ');
+}
+
+function ChevronLeft(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
   );
 }
